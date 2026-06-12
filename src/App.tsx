@@ -1,15 +1,19 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import type { FillUp } from './types'
 import { useFillUps } from './lib/storage'
 import { byDateAsc } from './lib/stats'
 import Dashboard from './components/Dashboard'
 import History from './components/History'
 import FillUpForm from './components/FillUpForm'
+import Settings from './components/Settings'
 
-type View = 'dashboard' | 'history'
+const Stats = lazy(() => import('./components/Stats'))
+
+type View = 'dashboard' | 'history' | 'stats' | 'settings'
 
 export default function App() {
-  const { fillUps, addFillUp, updateFillUp, deleteFillUp } = useFillUps()
+  const { fillUps, addFillUp, updateFillUp, deleteFillUp, importFillUps } =
+    useFillUps()
   const [view, setView] = useState<View>('dashboard')
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<FillUp | undefined>()
@@ -68,18 +72,33 @@ export default function App() {
         ) : (
           <>
             <nav className="mb-4 flex gap-1 rounded-xl bg-slate-200 p-1">
-              {tab('dashboard', 'Dashboard')}
+              {tab('dashboard', 'Home')}
               {tab('history', 'History')}
+              {tab('stats', 'Stats')}
+              {tab('settings', 'Settings')}
             </nav>
 
-            {view === 'dashboard' ? (
-              <Dashboard fillUps={fillUps} />
-            ) : (
+            {view === 'dashboard' && <Dashboard fillUps={fillUps} />}
+            {view === 'history' && (
               <History
                 fillUps={fillUps}
                 onEdit={openEdit}
                 onDelete={deleteFillUp}
               />
+            )}
+            {view === 'stats' && (
+              <Suspense
+                fallback={
+                  <p className="py-8 text-center text-sm text-slate-400">
+                    Loading charts…
+                  </p>
+                }
+              >
+                <Stats fillUps={fillUps} />
+              </Suspense>
+            )}
+            {view === 'settings' && (
+              <Settings fillUps={fillUps} onImport={importFillUps} />
             )}
 
             <div className="fixed inset-x-0 bottom-0 bg-gradient-to-t from-slate-100 via-slate-100 to-transparent px-4 pb-6 pt-8">

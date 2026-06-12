@@ -33,5 +33,12 @@ export function useFillUps() {
     setFillUps((prev) => prev.filter((f) => f.id !== id))
   }
 
-  return { fillUps, addFillUp, updateFillUp, deleteFillUp }
+  const importFillUps = (imported: Omit<FillUp, 'id'>[]) => {
+    setFillUps((prev) => [
+      ...prev,
+      ...imported.map((f) => ({ ...f, id: crypto.randomUUID() })),
+    ])
+  }
+
+  return { fillUps, addFillUp, updateFillUp, deleteFillUp, importFillUps }
 }
