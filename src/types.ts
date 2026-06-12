@@ -26,5 +26,5 @@ export interface AppSettings {
 
 export const DEFAULT_SETTINGS: AppSettings = {
   distanceUnit: 'mi',
-  volumeUnit: 'gal',
+  volumeUnit: 'L',
 }
