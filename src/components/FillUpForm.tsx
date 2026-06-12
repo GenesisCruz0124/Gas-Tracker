@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react'
-import type { FillUp } from '../types'
+import type { AppSettings, FillUp } from '../types'
+import { priceLabel, volumeWord } from '../lib/units'
 
 interface Props {
   initial?: FillUp
   lastOdometer?: number
-  onSave: (fillUp: Omit<FillUp, 'id'>) => void
+  settings: AppSettings
+  onSave: (fillUp: Omit<FillUp, 'id' | 'vehicleId'>) => void
   onCancel: () => void
 }
 
@@ -15,6 +17,7 @@ function round2(n: number): number {
 export default function FillUpForm({
   initial,
   lastOdometer,
+  settings,
   onSave,
   onCancel,
 }: Props) {
@@ -66,7 +69,7 @@ export default function FillUpForm({
       odo <= lastOdometer
     ) {
       setError(
-        `Odometer should be above your last reading (${lastOdometer.toLocaleString()} mi).`,
+        `Odometer should be above your last reading (${lastOdometer.toLocaleString()} ${settings.distanceUnit}).`,
       )
       return
     }
@@ -104,7 +107,9 @@ export default function FillUpForm({
       </div>
 
       <div>
-        <label className={label} htmlFor="odometer">Odometer (mi)</label>
+        <label className={label} htmlFor="odometer">
+          Odometer ({settings.distanceUnit})
+        </label>
         <input
           id="odometer"
           type="number"
@@ -123,7 +128,9 @@ export default function FillUpForm({
 
       <div className="grid grid-cols-3 gap-3">
         <div>
-          <label className={label} htmlFor="gallons">Gallons</label>
+          <label className={label} htmlFor="gallons">
+            {volumeWord(settings)}
+          </label>
           <input
             id="gallons"
             type="number"
@@ -138,7 +145,9 @@ export default function FillUpForm({
           />
         </div>
         <div>
-          <label className={label} htmlFor="price">$/gal</label>
+          <label className={label} htmlFor="price">
+            {priceLabel(settings)}
+          </label>
           <input
             id="price"
             type="number"
@@ -188,7 +197,7 @@ export default function FillUpForm({
           checked={isFullTank}
           onChange={(e) => setIsFullTank(e.target.checked)}
         />
-        Filled the tank completely (needed for MPG)
+        Filled the tank completely (needed for fuel economy)
       </label>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

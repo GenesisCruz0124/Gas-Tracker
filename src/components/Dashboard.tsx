@@ -1,11 +1,12 @@
-import type { FillUp } from '../types'
+import type { AppSettings, FillUp } from '../types'
 import {
-  averageMpg,
-  costPerMile,
+  costPerDistance,
+  efficiencyTotals,
   formatMoney,
   monthKey,
   totalForMonth,
 } from '../lib/stats'
+import { efficiency, efficiencyLabel } from '../lib/units'
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
@@ -16,7 +17,13 @@ function StatCard({ label, value }: { label: string; value: string }) {
   )
 }
 
-export default function Dashboard({ fillUps }: { fillUps: FillUp[] }) {
+export default function Dashboard({
+  fillUps,
+  settings,
+}: {
+  fillUps: FillUp[]
+  settings: AppSettings
+}) {
   const now = new Date()
   const thisMonth = monthKey(now.toISOString())
   const monthName = now.toLocaleString('en-US', {
@@ -25,8 +32,8 @@ export default function Dashboard({ fillUps }: { fillUps: FillUp[] }) {
   })
 
   const monthTotal = totalForMonth(fillUps, thisMonth)
-  const mpg = averageMpg(fillUps)
-  const cpm = costPerMile(fillUps)
+  const totals = efficiencyTotals(fillUps)
+  const cpd = costPerDistance(fillUps)
 
   return (
     <div className="space-y-4">
@@ -34,18 +41,22 @@ export default function Dashboard({ fillUps }: { fillUps: FillUp[] }) {
         <StatCard label={`Spent in ${monthName}`} value={formatMoney(monthTotal)} />
         <StatCard label="Fill-ups logged" value={String(fillUps.length)} />
         <StatCard
-          label="Average MPG"
-          value={mpg !== null ? mpg.toFixed(1) : '—'}
+          label={`Average ${efficiencyLabel(settings)}`}
+          value={
+            totals
+              ? efficiency(totals.distance, totals.volume, settings).toFixed(1)
+              : '—'
+          }
         />
         <StatCard
-          label="Cost per mile"
-          value={cpm !== null ? formatMoney(cpm) : '—'}
+          label={`Cost per ${settings.distanceUnit}`}
+          value={cpd !== null ? formatMoney(cpd) : '—'}
         />
       </div>
       {fillUps.length < 2 && (
         <p className="rounded-xl bg-blue-50 p-4 text-sm text-blue-800">
-          Log at least two full-tank fill-ups to see your MPG and cost per
-          mile.
+          Log at least two full-tank fill-ups to see your fuel economy and
+          cost per {settings.distanceUnit === 'mi' ? 'mile' : 'kilometer'}.
         </p>
       )}
     </div>

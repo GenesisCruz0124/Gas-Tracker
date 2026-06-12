@@ -9,8 +9,9 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import type { FillUp } from '../types'
-import { monthlyTotals, mpgSeries, priceSeries } from '../lib/stats'
+import type { AppSettings, FillUp } from '../types'
+import { efficiencySeries, monthlyTotals, priceSeries } from '../lib/stats'
+import { efficiency, efficiencyLabel, priceLabel } from '../lib/units'
 
 function shortMonth(month: string): string {
   return new Date(month + '-01T00:00').toLocaleDateString('en-US', {
@@ -53,13 +54,20 @@ function ChartCard({
   )
 }
 
-export default function Stats({ fillUps }: { fillUps: FillUp[] }) {
+export default function Stats({
+  fillUps,
+  settings,
+}: {
+  fillUps: FillUp[]
+  settings: AppSettings
+}) {
+  const effLabel = efficiencyLabel(settings)
   const months = monthlyTotals(fillUps).map((m) => ({
     ...m,
     label: shortMonth(m.month),
   }))
-  const mpg = mpgSeries(fillUps).map((p) => ({
-    ...p,
+  const mpg = efficiencySeries(fillUps).map((p) => ({
+    mpg: efficiency(p.distance, p.volume, settings),
     label: shortDate(p.date),
   }))
   const prices = priceSeries(fillUps).map((p) => ({
@@ -81,7 +89,7 @@ export default function Stats({ fillUps }: { fillUps: FillUp[] }) {
         </BarChart>
       </ChartCard>
 
-      <ChartCard title="MPG per full tank" empty={mpg.length < 2}>
+      <ChartCard title={`${effLabel} per full tank`} empty={mpg.length < 2}>
         <LineChart data={mpg}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis dataKey="label" fontSize={12} tickLine={false} />
@@ -91,11 +99,11 @@ export default function Stats({ fillUps }: { fillUps: FillUp[] }) {
             width={40}
             domain={['auto', 'auto']}
           />
-          <Tooltip formatter={(v) => `${Number(v).toFixed(1)} mpg`} />
+          <Tooltip formatter={(v) => `${Number(v).toFixed(1)} ${effLabel}`} />
           <Line
             type="monotone"
             dataKey="mpg"
-            name="MPG"
+            name={effLabel}
             stroke="#16a34a"
             strokeWidth={2}
             dot={{ r: 3 }}
@@ -103,7 +111,10 @@ export default function Stats({ fillUps }: { fillUps: FillUp[] }) {
         </LineChart>
       </ChartCard>
 
-      <ChartCard title="Gas price per gallon" empty={prices.length < 2}>
+      <ChartCard
+        title={`Gas price (${priceLabel(settings)})`}
+        empty={prices.length < 2}
+      >
         <LineChart data={prices}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis dataKey="label" fontSize={12} tickLine={false} />
@@ -118,7 +129,7 @@ export default function Stats({ fillUps }: { fillUps: FillUp[] }) {
           <Line
             type="monotone"
             dataKey="price"
-            name="$/gal"
+            name={priceLabel(settings)}
             stroke="#ea580c"
             strokeWidth={2}
             dot={{ r: 3 }}

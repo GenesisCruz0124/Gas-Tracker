@@ -1,13 +1,15 @@
-import type { FillUp } from '../types'
+import type { AppSettings, FillUp } from '../types'
 import { byDateAsc, formatMoney } from '../lib/stats'
+import { volumeLabel } from '../lib/units'
 
 interface Props {
   fillUps: FillUp[]
+  settings: AppSettings
   onEdit: (fillUp: FillUp) => void
   onDelete: (id: string) => void
 }
 
-export default function History({ fillUps, onEdit, onDelete }: Props) {
+export default function History({ fillUps, settings, onEdit, onDelete }: Props) {
   if (fillUps.length === 0) {
     return (
       <p className="rounded-xl bg-white p-6 text-center text-slate-500 shadow-sm">
@@ -35,8 +37,9 @@ export default function History({ fillUps, onEdit, onDelete }: Props) {
                 )}
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                {f.gallons.toFixed(2)} gal @ {formatMoney(f.pricePerGallon)} ·{' '}
-                {f.odometer.toLocaleString()} mi
+                {f.gallons.toFixed(2)} {volumeLabel(settings)} @{' '}
+                {formatMoney(f.pricePerGallon)} ·{' '}
+                {f.odometer.toLocaleString()} {settings.distanceUnit}
                 {!f.isFullTank && ' · partial'}
               </p>
             </div>

@@ -16,37 +16,6 @@ export function totalForMonth(fillUps: FillUp[], month: string): number {
     .reduce((sum, f) => sum + f.totalCost, 0)
 }
 
-/**
- * Average MPG across consecutive full-tank fill-ups, weighted by miles
- * driven. A segment only counts when the later fill-up is a full tank,
- * since a partial fill makes the gallons-to-miles ratio meaningless.
- */
-export function averageMpg(fillUps: FillUp[]): number | null {
-  const sorted = byDateAsc(fillUps)
-  let miles = 0
-  let gallons = 0
-  for (let i = 1; i < sorted.length; i++) {
-    const prev = sorted[i - 1]
-    const curr = sorted[i]
-    if (!curr.isFullTank || !prev.isFullTank) continue
-    const distance = curr.odometer - prev.odometer
-    if (distance <= 0 || curr.gallons <= 0) continue
-    miles += distance
-    gallons += curr.gallons
-  }
-  return gallons > 0 ? miles / gallons : null
-}
-
-/** Total cost divided by total miles driven between first and last fill-up. */
-export function costPerMile(fillUps: FillUp[]): number | null {
-  const sorted = byDateAsc(fillUps)
-  if (sorted.length < 2) return null
-  const miles = sorted[sorted.length - 1].odometer - sorted[0].odometer
-  if (miles <= 0) return null
-  const cost = sorted.slice(1).reduce((sum, f) => sum + f.totalCost, 0)
-  return cost / miles
-}
-
 export interface MonthlyTotal {
   month: string // yyyy-mm
   total: number
@@ -63,24 +32,42 @@ export function monthlyTotals(fillUps: FillUp[]): MonthlyTotal[] {
     .map(([month, total]) => ({ month, total }))
 }
 
-export interface MpgPoint {
+export interface EfficiencyPoint {
   date: string
-  mpg: number
+  distance: number
+  volume: number
 }
 
-/** MPG for each full-tank-to-full-tank segment, in date order. */
-export function mpgSeries(fillUps: FillUp[]): MpgPoint[] {
+/**
+ * Distance/volume for each full-tank-to-full-tank segment, in date order.
+ * A segment only counts when both ends are full tanks, since a partial
+ * fill makes the volume-to-distance ratio meaningless.
+ */
+export function efficiencySeries(fillUps: FillUp[]): EfficiencyPoint[] {
   const sorted = byDateAsc(fillUps)
-  const points: MpgPoint[] = []
+  const points: EfficiencyPoint[] = []
   for (let i = 1; i < sorted.length; i++) {
     const prev = sorted[i - 1]
     const curr = sorted[i]
     if (!curr.isFullTank || !prev.isFullTank) continue
     const distance = curr.odometer - prev.odometer
     if (distance <= 0 || curr.gallons <= 0) continue
-    points.push({ date: curr.date, mpg: distance / curr.gallons })
+    points.push({ date: curr.date, distance, volume: curr.gallons })
   }
   return points
+}
+
+/** Total distance and volume across all valid full-tank segments. */
+export function efficiencyTotals(
+  fillUps: FillUp[],
+): { distance: number; volume: number } | null {
+  let distance = 0
+  let volume = 0
+  for (const point of efficiencySeries(fillUps)) {
+    distance += point.distance
+    volume += point.volume
+  }
+  return volume > 0 ? { distance, volume } : null
 }
 
 export interface PricePoint {
@@ -92,6 +79,16 @@ export function priceSeries(fillUps: FillUp[]): PricePoint[] {
   return byDateAsc(fillUps)
     .filter((f) => f.pricePerGallon > 0)
     .map((f) => ({ date: f.date, price: f.pricePerGallon }))
+}
+
+/** Total cost divided by total distance driven between first and last fill-up. */
+export function costPerDistance(fillUps: FillUp[]): number | null {
+  const sorted = byDateAsc(fillUps)
+  if (sorted.length < 2) return null
+  const distance = sorted[sorted.length - 1].odometer - sorted[0].odometer
+  if (distance <= 0) return null
+  const cost = sorted.slice(1).reduce((sum, f) => sum + f.totalCost, 0)
+  return cost / distance
 }
 
 export function formatMoney(amount: number): string {
