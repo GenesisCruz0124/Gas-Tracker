@@ -8,7 +8,9 @@ import {
 
 const FILLUPS_KEY = 'gas-tracker:fillups'
 const VEHICLES_KEY = 'gas-tracker:vehicles'
-const SETTINGS_KEY = 'gas-tracker:settings'
+// v2: re-defaults everyone to km/L, superseding settings saved under the
+// old key when miles/gallons were the defaults.
+const SETTINGS_KEY = 'gas-tracker:settings-v2'
 const ACTIVE_VEHICLE_KEY = 'gas-tracker:active-vehicle'
 
 function loadJson<T>(key: string, fallback: T): T {
