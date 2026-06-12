@@ -72,7 +72,11 @@ export default function App() {
     <div className="min-h-screen bg-slate-100">
       <div className="mx-auto max-w-lg px-4 pb-24 pt-6">
         <header className="mb-6 flex items-center gap-2">
-          <img src="/icon.svg" alt="" className="h-8 w-8" />
+          <img
+            src={`${import.meta.env.BASE_URL}icon.svg`}
+            alt=""
+            className="h-8 w-8"
+          />
           <h1 className="text-xl font-bold text-slate-900">Gas Tracker</h1>
           {vehicles.length > 1 && (
             <select

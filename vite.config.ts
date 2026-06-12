@@ -4,6 +4,8 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  // Served from https://<owner>.github.io/Gas-Tracker/ on GitHub Pages
+  base: '/Gas-Tracker/',
   plugins: [
     react(),
     tailwindcss(),
