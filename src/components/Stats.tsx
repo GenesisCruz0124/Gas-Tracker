@@ -75,7 +75,7 @@ export default function Stats({
     label: shortDate(p.date),
   }))
 
-  const money = (v: number) => `$${v.toFixed(2)}`
+  const money = (v: number) => `₱${v.toFixed(2)}`
 
   return (
     <div className="space-y-4">

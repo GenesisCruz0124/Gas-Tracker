@@ -162,7 +162,7 @@ export default function FillUpForm({
           />
         </div>
         <div>
-          <label className={label} htmlFor="total">Total $</label>
+          <label className={label} htmlFor="total">Total ₱</label>
           <input
             id="total"
             type="number"

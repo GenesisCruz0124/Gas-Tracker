@@ -9,7 +9,7 @@ export function volumeWord(s: AppSettings): string {
 }
 
 export function priceLabel(s: AppSettings): string {
-  return `$/${volumeLabel(s)}`
+  return `₱/${volumeLabel(s)}`
 }
 
 export function isMetricEfficiency(s: AppSettings): boolean {

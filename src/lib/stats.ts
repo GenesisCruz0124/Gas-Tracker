@@ -92,5 +92,5 @@ export function costPerDistance(fillUps: FillUp[]): number | null {
 }
 
 export function formatMoney(amount: number): string {
-  return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+  return amount.toLocaleString('en-PH', { style: 'currency', currency: 'PHP' })
 }
