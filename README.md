@@ -32,5 +32,13 @@ Built with React, TypeScript, Vite, Tailwind CSS, and Recharts.
 
 ## Deploying
 
-`npm run build` produces a static site in `dist/` — deploy it to any static
-host (Vercel, Netlify, GitHub Pages). See [PLAN.md](PLAN.md) for the roadmap.
+**Live app:** https://genesiscruz0124.github.io/Gas-Tracker/
+
+Every push runs the [deploy workflow](.github/workflows/deploy.yml), which
+builds the app and publishes `dist/` to the `gh-pages` branch.
+
+One-time setup (repo admin): in **Settings → Pages**, set Source to
+**Deploy from a branch** and pick `gh-pages` / `/ (root)`.
+
+`npm run build` also works with any other static host (Vercel, Netlify).
+See [PLAN.md](PLAN.md) for the roadmap.
