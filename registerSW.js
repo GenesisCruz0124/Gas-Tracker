@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/Gas-Tracker/sw.js', { scope: '/Gas-Tracker/' })})}
